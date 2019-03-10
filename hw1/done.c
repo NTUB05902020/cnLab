@@ -41,7 +41,7 @@ int main(int argc, char **argv){
   }
   dst.sin_addr = (*(struct in_addr *)dst_hp->h_addr);
   dst.sin_family = AF_INET;
-  dst.sin_port = htons(3000);
+  dst.sin_port = htons(81000);
 
   char dst_ip[50];
   sprintf(dst_ip, "%s", inet_ntoa(dst.sin_addr));
@@ -61,12 +61,10 @@ int main(int argc, char **argv){
   float msec_diff;
   int fin = 0;
 
-
-  
-  for(int seqNum = 1; seqNum < 100 && fin == 0; seqNum++){
+  for(uint16_t seqNum = 1; seqNum < 100 && fin == 0; seqNum++){
     changeTTL(seqNum);
-    printf("%d   ", seqNum);
-    for(int id = 0; id < 3; id++){
+    printf("%-5d", seqNum);
+    for(uint16_t id = 0; id < 3; id++){
       struct timeval timeout = {1, 0};
       fd_set in_set;
       FD_ZERO(&in_set);
@@ -81,6 +79,7 @@ int main(int argc, char **argv){
       free(send_pac);
 
       /*--------------------start receiving---------------------*/
+      
       if(select(sockfd+1, &in_set, NULL, NULL, &timeout) < 0){
 	printf("cant select\n");
 	exit(1);
@@ -94,13 +93,13 @@ int main(int argc, char **argv){
 	    info = get_info(buff);
 	    // print out IP address
 	    if(id == 0){
-	      printf("%u.%u.%u.%u   ", (info->IP>>0) & 0xff, (info->IP>>8) & 0xff, (info->IP>>16) & 0xff, ((info->IP>>24) & 0xff));
+	      printf("%3u.%3u.%3u.%3u", (info->IP>>24) & 0xff, (info->IP>>16) & 0xff, (info->IP>>8) & 0xff, (info->IP) & 0xff);
 	    }
 	    msec_diff = get_msec_diff(&t1, &t2);
 	    // print time difference
-	    printf("%.3fms   ", msec_diff);
-	    if(info->type == (uint8_t)3)
-	      // Destination unreachable
+	    printf("%8.3fms", msec_diff);
+	    if(info->type == (uint8_t)0)
+	      // echo reply
 	      fin = 1;
 	    else if(info->type == (uint8_t)11)
 	      // time exceeded
@@ -114,7 +113,7 @@ int main(int argc, char **argv){
 	  }
       }
       else
-	printf("*   ");
+	printf("       *");
     }
     printf("\n");
   }

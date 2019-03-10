@@ -18,6 +18,6 @@ typedef struct{
   uint16_t seqNum;
 }Info;
 // return the header of icmp package with identifier and seqNum set
-ICMP *set_header(int identifier, int seqNum);
+ICMP *set_header(uint16_t identifier, uint16_t seqNum);
 // return IP, identifier and seqNum of the given package "buff"
 Info *get_info(char *buff);

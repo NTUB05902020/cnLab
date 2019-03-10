@@ -93,6 +93,7 @@ int main(int argc, char **argv){
 	info = get_info(buff);
 	// print out IP address
 	if(id == 0){
+	  // mac system is small endian
 	  printf("%u.%u.%u.%u   ", (info->IP>>0) & 0xff, (info->IP>>8) & 0xff, (info->IP>>16) & 0xff, ((info->IP>>24) & 0xff));
 	}
 	msec_diff = get_msec_diff(&t1, &t2);

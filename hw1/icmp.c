@@ -3,22 +3,26 @@
 #include <stdio.h>
 #include <netinet/in.h>
 
-void set_checksum(ICMP *pac){
+static uint16_t get_checksum(const char *pac, size_t size){
   uint32_t sum = 0;
-  sum = pac->type;
-  sum <<= 8;
-  sum += pac->code + pac->identifier + pac->seqNum;
-  pac->checksum = (uint16_t)~((sum & 0xffff) + (sum>>16));
+  for(int i = 0; i < size; i += 2){
+    sum += *(uint16_t *)pac;
+    pac += 2;
+  }
+  while(sum>>16 != 0)
+    sum = (sum & 0xffff) + (sum >> 16);
+  return ~sum;
 }
-
-ICMP *set_header(int identifier, int seqNum){
+  
+ICMP *set_header(uint16_t identifier, uint16_t seqNum){
   ICMP *pac = (ICMP *)malloc(sizeof(ICMP));
   // echo request
   pac->type = (uint8_t)8;
   pac->code = 0;
-  pac->identifier = (uint16_t)identifier;
-  pac->seqNum = (uint16_t)seqNum;
-  set_checksum(pac);
+  pac->checksum = 0;
+  pac->identifier = htons(identifier);
+  pac->seqNum = htons(seqNum);
+  pac->checksum = get_checksum((const char *)pac, sizeof(*pac));
   return pac;
 }
 
@@ -36,10 +40,10 @@ Info *get_info(char *buff){
   ICMP *icmp_head = (ICMP *)(buff + header_size);
 
   Info *info = (Info *)malloc(sizeof(Info));
-  info->IP = IP;
+  info->IP = ntohl(IP);
   info->type = icmp_head->type;
-  info->identifier = (icmp_head->identifier);
-  info->seqNum = (icmp_head->seqNum);
-  //printf("info->type = %d, id = %d, seq = %d\n", info->type, info->identifier, info->seqNum);
+  info->identifier = ntohs(icmp_head->identifier);
+  info->seqNum = ntohs(icmp_head->seqNum);
+  //printf("info->type = %u, id = %hu, seq = %hu\n", info->type, info->identifier, info->seqNum);
   return info;
 }
