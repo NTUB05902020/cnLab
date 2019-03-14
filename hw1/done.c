@@ -64,6 +64,8 @@ int main(int argc, char **argv){
   for(uint16_t seqNum = 1; seqNum < 100 && fin == 0; seqNum++){
     changeTTL(seqNum);
     printf("%-5d", seqNum);
+    char ipAddr[16];
+    char time[3][100];
     for(uint16_t id = 0; id < 3; id++){
       struct timeval timeout = {1, 0};
       fd_set in_set;
@@ -92,12 +94,11 @@ int main(int argc, char **argv){
 	    // unpack message
 	    info = get_info(buff);
 	    // print out IP address
-	    if(id == 0){
-	      printf("%3u.%3u.%3u.%3u", (info->IP>>24) & 0xff, (info->IP>>16) & 0xff, (info->IP>>8) & 0xff, (info->IP) & 0xff);
-	    }
+	    sprintf(ipAddr, "%3u.%3u.%3u.%3u", (info->IP>>24) & 0xff, (info->IP>>16) & 0xff, (info->IP>>8) & 0xff, (info->IP) & 0xff);
+
 	    msec_diff = get_msec_diff(&t1, &t2);
 	    // print time difference
-	    printf("%8.3fms", msec_diff);
+	    sprintf(time[id], "%8.3fms", msec_diff);
 	    if(info->type == (uint8_t)0)
 	      // echo reply
 	      fin = 1;
@@ -113,8 +114,9 @@ int main(int argc, char **argv){
 	  }
       }
       else
-	printf("       *");
+	sprintf(time[id], "         *");
     }
+    printf("%s%s%s%s", ipAddr, time[0], time[1], time[2]);
     printf("\n");
   }
 	
