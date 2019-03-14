@@ -1,7 +1,7 @@
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
-typedef unsigned long long int uint64_t;
+//typedef unsigned long long int uint64_t;
 // ICMP header structure
 typedef struct{
   uint8_t type; // unsigned 8bits

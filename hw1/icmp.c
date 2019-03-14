@@ -7,7 +7,7 @@ static uint16_t get_checksum(const char *pac, size_t size){
   uint32_t sum = 0;
   for(int i = 0; i < size; i += 2){
     sum += *(uint16_t *)pac;
-    pac += 2;
+    pac += 2;//move to next 16bits 
   }
   while(sum>>16 != 0)
     sum = (sum & 0xffff) + (sum >> 16);
